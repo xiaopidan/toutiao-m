@@ -6,6 +6,7 @@
     <!-- 登录表单 -->
     <van-form @submit="onSubmit">
         <van-field
+            v-model="user.mobile"
             name="用户名"
             placeholder="请输入手机号"
         >
@@ -14,7 +15,7 @@
             </template>
         </van-field>
         <van-field
-            type="password"
+            v-model="user.code"
             name="验证码"
             placeholder="请输入验证码"
         >
@@ -34,16 +35,39 @@
 </template>
 
 <script>
+import { login } from '@/api/user.js'
+
 export default {
   name: 'LoginIndex',
   data () {
     return {
-
+      user: {
+        mobile: '13911111111',
+        code: '246810'
+      }
     }
   },
   methods: {
-    onSubmit (values) {
-      console.log('submit', values)
+    async onSubmit (values) {
+      const user = this.user
+      console.log('this====>', this)
+      this.$toast.loading({
+        message: '登录中...',
+        forbidClick: true,
+        duration: 0
+      })
+
+      try {
+        const res = await login(user)
+        console.log(res)
+        this.$toast.success('登录成功')
+      } catch (error) {
+        if (error.response.status === 400) {
+          this.$toast.fail('手机号或验证码错误')
+        } else {
+          this.$toast.fail('登录失败，请稍后重试')
+        }
+      }
     }
   }
 }
