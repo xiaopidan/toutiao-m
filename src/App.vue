@@ -7,10 +7,7 @@
 <script>
 
 export default {
-  name: 'App',
-  created () {
-    console.log('this===>', this)
-  }
+  name: 'App'
 }
 
 </script>
