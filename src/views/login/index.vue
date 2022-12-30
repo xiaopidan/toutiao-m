@@ -76,11 +76,11 @@ export default {
       })
 
       try {
-        const res = await login(user)
-        console.log(res)
+        const { data } = await login(user)
+        this.$store.commit('setUser', data.data)
         this.$toast.success('登录成功')
       } catch (error) {
-        if (error.response.status === 400) {
+        if (error.response && error.response.status === 400) {
           this.$toast.fail('手机号或验证码错误')
         } else {
           this.$toast.fail('登录失败，请稍后重试')
@@ -103,7 +103,7 @@ export default {
       } catch (error) {
         this.isCountDownShow = false
 
-        if (error.response.status === 429) {
+        if (error.response && error.response.status === 429) {
           this.$toast('发送太频繁了，请稍后重试')
         } else {
           this.$toast('发送失败')
