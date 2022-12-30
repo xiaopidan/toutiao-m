@@ -4,11 +4,14 @@
     <van-nav-bar class="page-nav-bar" title="登录"/>
 
     <!-- 登录表单 -->
-    <van-form @submit="onSubmit">
+    <van-form @submit="onSubmit" ref="loginForm">
         <van-field
             v-model="user.mobile"
-            name="用户名"
+            name="mobile"
             placeholder="请输入手机号"
+            :rules="userFormRules.mobile"
+            type="number"
+            maxlength="11"
         >
             <template #left-icon>
                 <i class="toutiao toutiao-shouji"></i>
@@ -16,14 +19,17 @@
         </van-field>
         <van-field
             v-model="user.code"
-            name="验证码"
+            name="code"
             placeholder="请输入验证码"
+            :rules="userFormRules.code"
+            type="number"
+            maxlength="6"
         >
             <template #left-icon>
                 <i class="toutiao toutiao-yanzhengma"></i>
             </template>
             <template #button>
-                <van-button class="send-sms-btn" round size="small" type="default">发送验证码</van-button>
+                <van-button class="send-sms-btn" @click="onSendSms" native-type="button" round size="small" type="default">发送验证码</van-button>
             </template>
         </van-field>
 
@@ -44,6 +50,16 @@ export default {
       user: {
         mobile: '13911111111',
         code: '246810'
+      },
+      userFormRules: {
+        mobile: [
+          { required: true, message: '请填写手机号' },
+          { pattern: /^1[3|5|7|8]\d{9}$/, message: '手机号格式错误' }
+        ],
+        code: [
+          { required: true, message: '请填写验证码' },
+          { pattern: /^\d{6}$/, message: '验证码格式错误' }
+        ]
       }
     }
   },
@@ -67,6 +83,15 @@ export default {
         } else {
           this.$toast.fail('登录失败，请稍后重试')
         }
+      }
+    },
+
+    async onSendSms () {
+      try {
+        await this.$refs.loginForm.validate('mobile')
+      } catch (error) {
+        console.log('验证失败', error)
+        return 1
       }
     }
   }
