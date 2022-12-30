@@ -26,10 +26,11 @@
             maxlength="6"
         >
             <template #left-icon>
-                <i class="toutiao toutiao-yanzhengma"></i>
+              <i class="toutiao toutiao-yanzhengma"></i>
             </template>
             <template #button>
-                <van-button class="send-sms-btn" @click="onSendSms" native-type="button" round size="small" type="default">发送验证码</van-button>
+              <van-count-down v-if="isCountDownShow" :time="1000 * 5" format="ss s" @finish="isCountDownShow = false"/>
+              <van-button v-else class="send-sms-btn" @click="onSendSms" native-type="button" round size="small" type="default">发送验证码</van-button>
             </template>
         </van-field>
 
@@ -41,7 +42,7 @@
 </template>
 
 <script>
-import { login } from '@/api/user.js'
+import { login, sendSms } from '@/api/user.js'
 
 export default {
   name: 'LoginIndex',
@@ -60,7 +61,8 @@ export default {
           { required: true, message: '请填写验证码' },
           { pattern: /^\d{6}$/, message: '验证码格式错误' }
         ]
-      }
+      },
+      isCountDownShow: false
     }
   },
   methods: {
@@ -92,6 +94,20 @@ export default {
       } catch (error) {
         console.log('验证失败', error)
         return 1
+      }
+      this.isCountDownShow = true
+
+      try {
+        await sendSms(this.user.mobile)
+        this.$toast('发送成功')
+      } catch (error) {
+        this.isCountDownShow = false
+
+        if (error.response.status === 429) {
+          this.$toast('发送太频繁了，请稍后重试')
+        } else {
+          this.$toast('发送失败')
+        }
       }
     }
   }
